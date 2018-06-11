@@ -30,6 +30,17 @@ const isMissingExecutable = (binaryDir) => {
   return fs.pathExistsAsync(executable)
   .then((exists) => {
     if (!exists) {
+      if (util.isCi()) {
+        return throwFormErrorText(errors.missingApp(binaryDir))(stripIndent`
+        Cypress executable not found at: ${chalk.cyan(executable)}
+
+        We've detected that you are running Cypress in a CI environment. Most likely you have not configured your build to cache the Cypress binary between runs.
+        
+        See more info on the error here:
+
+        on.cypress.io/not-installed-ci-error
+      `)
+      }
       return throwFormErrorText(errors.missingApp(binaryDir))(stripIndent`
       Cypress executable not found at: ${chalk.cyan(executable)}
     `)
